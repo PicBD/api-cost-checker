@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PicBD — Checklist tests coûts API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1B2A4A;--accent:#C0392B;--gold:#B8860B;
+  --bg:#F8F9FC;--surface:#FFFFFF;--surface2:#F1F4F9;--surface3:#E8EDF5;
+  --border:#DDE2EC;--border2:#C8D0E0;
+  --text:#1A2035;--text2:#4A5568;--text3:#8492A6;
+  --green:#1A7F4E;--green-bg:#E6F7EF;--green-border:#A8DFC4;
+  --yellow:#92600A;--yellow-bg:#FEF9EC;--yellow-border:#F5D98B;
+  --red:#B91C1C;--red-bg:#FEF2F2;--red-border:#FECACA;
+  --blue:#1D4ED8;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
+  --radius:10px;--radius-sm:6px;--shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.1),0 2px 4px rgba(0,0,0,0.06);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+
+/* HEADER */
+.app-header{background:var(--navy);color:#fff;padding:1.5rem 0;box-shadow:var(--shadow-md)}
+.app-header .inner{max-width:860px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:16px}
+.app-logo{width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.app-header h1{font-size:20px;font-weight:600;letter-spacing:-0.3px}
+.app-header p{font-size:13px;opacity:0.7;margin-top:2px}
+.app-header .version{margin-left:auto;font-size:11px;opacity:0.5;white-space:nowrap}
+
+/* PROGRESS */
+.progress-wrap{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.progress-inner{max-width:860px;margin:0 auto;padding:0.75rem 1.5rem;display:flex;align-items:center;gap:16px}
+.progress-bar{flex:1;height:8px;background:var(--surface3);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),#22C55E);border-radius:99px;transition:width 0.4s ease}
+.progress-label{font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap}
+.progress-pct{font-size:13px;font-weight:600;color:var(--green);min-width:36px;text-align:right}
+
+/* MAIN */
+.main{max-width:860px;margin:0 auto;padding:2rem 1.5rem 4rem}
+
+/* SECTION */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1.25rem;overflow:hidden;box-shadow:var(--shadow)}
+.section-header{padding:1rem 1.25rem;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;transition:background 0.15s}
+.section-header:hover{background:var(--surface2)}
+.section-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.icon-prep{background:#EEF2FF;color:#4338CA}
+.icon-test{background:var(--blue-bg);color:var(--blue)}
+.icon-final{background:var(--green-bg);color:var(--green)}
+.section-info{flex:1}
+.section-info h2{font-size:15px;font-weight:600;color:var(--text)}
+.section-info p{font-size:12px;color:var(--text3);margin-top:1px}
+.section-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;border:1px solid}
+.badge-todo{background:var(--surface2);color:var(--text3);border-color:var(--border)}
+.badge-prog{background:var(--yellow-bg);color:var(--yellow);border-color:var(--yellow-border)}
+.badge-done{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.section-chevron{font-size:20px;color:var(--text3);transition:transform 0.25s;flex-shrink:0}
+.section-body{display:none;border-top:1px solid var(--border)}
+.section-body.open{display:block}
+
+/* STEPS */
+.steps-wrap{padding:0.75rem 1.25rem}
+.step{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-cb input[type=checkbox]{width:18px;height:18px;cursor:pointer;accent-color:var(--green);margin-top:1px;flex-shrink:0}
+.step-content{flex:1}
+.step-text{font-size:14px;color:var(--text);transition:color 0.2s}
+.step-text.done{color:var(--text3);text-decoration:line-through}
+.step-note{margin-top:6px;padding:7px 10px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:var(--radius-sm);font-size:12px;color:#1E40AF;display:flex;gap:6px;align-items:flex-start}
+.step-warn{margin-top:6px;padding:7px 10px;background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--radius-sm);font-size:12px;color:var(--yellow);display:flex;gap:6px;align-items:flex-start}
+
+/* TEST CARDS */
+.tests-wrap{padding:1rem 1.25rem;display:flex;flex-direction:column;gap:10px}
+.test-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.test-card-hdr{display:flex;align-items:center;gap:12px;padding:0.875rem 1rem;cursor:pointer;transition:background 0.15s}
+.test-card-hdr:hover{background:var(--surface2)}
+.test-num{width:28px;height:28px;border-radius:50%;background:var(--surface3);color:var(--text3);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--border2)}
+.test-num.done{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.test-card-title{flex:1;font-size:14px;font-weight:500;color:var(--text)}
+.test-card-type{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px}
+.type-mural{background:#F0FDF4;color:#166534;border:1px solid #BBF7D0}
+.type-court{background:#EFF6FF;color:#1E40AF;border:1px solid #BFDBFE}
+.type-moyen{background:#FFF7ED;color:#9A3412;border:1px solid #FED7AA}
+.type-long{background:#FDF4FF;color:#6B21A8;border:1px solid #E9D5FF}
+.test-card-status{font-size:12px;color:var(--text3)}
+.test-card-status.done{color:var(--green);font-weight:500}
+.chevron{font-size:18px;color:var(--text3);transition:transform 0.2s;flex-shrink:0}
+
+/* TEST BODY */
+.test-body{display:none;border-top:1px solid var(--border);padding:1.25rem}
+.test-body.open{display:block}
+.alert-ledger{background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--yellow);display:flex;gap:10px;align-items:flex-start;margin-bottom:1.25rem}
+.section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;margin-top:1rem}
+.section-label:first-of-type{margin-top:0}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;font-weight:500;color:var(--text2)}
+.field input,.field textarea,.field select{
+  font-size:14px;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);
+  background:var(--surface);color:var(--text);width:100%;font-family:inherit;
+  transition:border-color 0.15s,box-shadow 0.15s}
+.field input:focus,.field textarea:focus{outline:none;border-color:#6366F1;box-shadow:0 0 0 3px rgba(99,102,241,0.1)}
+.field-reel label{color:var(--green);font-weight:600}
+.field-reel input{border-color:var(--green-border);background:var(--green-bg)}
+.field-reel input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(26,127,78,0.1)}
+.field textarea{resize:vertical;min-height:56px}
+.divider{border:none;border-top:1px solid var(--border);margin:1rem 0}
+
+/* CALC CARDS */
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:1rem}
+.calc-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px}
+.calc-card .clabel{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px}
+.calc-card .cval{font-size:16px;font-weight:600;color:var(--text)}
+.cval.c-green{color:var(--green)}
+.cval.c-red{color:var(--red)}
+.cval.c-yellow{color:var(--yellow)}
+
+/* EXCEL REF */
+.excel-ref{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--text2);display:flex;gap:10px;align-items:center;margin-top:1rem}
+.excel-ref strong{color:var(--text)}
+
+/* DONE BTN */
+.btn-done{width:100%;margin-top:1rem;padding:11px;font-size:14px;font-weight:600;border:1px solid var(--green);background:var(--green-bg);color:var(--green);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.15s}
+.btn-done:hover:not(:disabled){background:var(--green);color:#fff}
+.btn-done:disabled{opacity:0.45;cursor:not-allowed}
+
+/* FOOTER */
+.app-footer{max-width:860px;margin:0 auto;padding:0 1.5rem 1rem;display:flex;gap:10px;justify-content:flex-end}
+.btn-ghost{padding:8px 16px;font-size:13px;font-weight:500;border:1px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;background:var(--surface);color:var(--text2);font-family:inherit;transition:background 0.15s}
+.btn-ghost:hover{background:var(--surface2)}
+.btn-primary{padding:8px 16px;font-size:13px;font-weight:500;border:1px solid var(--green);border-radius:var(--radius-sm);cursor:pointer;background:var(--green);color:#fff;font-family:inherit;transition:opacity 0.15s}
+.btn-primary:hover{opacity:0.88}
+
+/* SUMMARY MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;padding:1.5rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius);max-width:600px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h2{font-size:16px;font-weight:600}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);padding:4px;border-radius:var(--radius-sm)}
+.modal-close:hover{background:var(--surface2)}
+.modal-body{padding:1.25rem 1.5rem}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.summary-row:last-child{border-bottom:none}
+.summary-row .sr-type{font-weight:500}
+.summary-row .sr-val{color:var(--text2)}
+.summary-row .sr-reel{font-weight:600;color:var(--green)}
+.summary-total{margin-top:1rem;padding:12px;background:var(--surface2);border-radius:var(--radius-sm);display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.summary-total .st-item .stl{font-size:10px;text-transform:uppercase;color:var(--text3);font-weight:500}
+.summary-total .st-item .stv{font-size:15px;font-weight:600;color:var(--text);margin-top:2px}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.instructions{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow)}
+.instructions h2{font-size:16px;font-weight:600;color:var(--navy);margin-bottom:0.75rem;display:flex;align-items:center;gap:8px}
+.instructions ol{padding-left:1.25rem;color:var(--text2);font-size:14px}
+.instructions ol li{margin-bottom:6px;line-height:1.5}
+.instructions ol li strong{color:var(--text)}
+
+@media(max-width:600px){
+  .field-grid{grid-template-columns:1fr}
+  .field-full{grid-column:1}
+  .calc-grid{grid-template-columns:1fr 1fr}
+  .app-header .inner{flex-wrap:wrap}
+  .summary-total{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="inner">
+    <div class="app-logo">🎨</div>
+    <div>
+      <h1>PicBD — Mesure des coûts API</h1>
+      <p>Checklist de tests · 12 générations à mesurer · reporter dans le classeur Excel</p>
+    </div>
+    <span class="version">v1.0 · Juin 2026</span>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="progress-label" id="prog-label">0 / 12 tests complétés</span>
+    <span class="progress-pct" id="prog-pct">0%</span>
+  </div>
+</div>
+
+<main class="main">
+
+<div class="instructions">
+  <h2>📋 Comment utiliser cette checklist</h2>
+  <ol>
+    <li>Dépliez chaque section dans l'ordre en cliquant sur son titre.</li>
+    <li>Cochez chaque étape de <strong>Préparation</strong> avant de lancer le premier test.</li>
+    <li>Pour chaque test : lancez la génération, relevez les chiffres dans votre <strong>API Ledger</strong>, saisissez-les dans les champs correspondants, puis reportez dans le <strong>classeur Excel</strong> (ligne indiquée).</li>
+    <li>Validez chaque test avec le bouton vert uniquement après avoir rempli la ligne Excel.</li>
+    <li>Suivez la <strong>Vérification finale</strong> avant d'envoyer le fichier pour analyse du barème.</li>
+  </ol>
+</div>
+
+<div id="sections"></div>
+
+</main>
+
+<div class="app-footer">
+  <button class="btn-ghost" onclick="resetAll()">Réinitialiser tout</button>
+  <button class="btn-primary" onclick="openSummary()">Voir le résumé</button>
+</div>
+
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeSummary()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Résumé des tests complétés</h2>
+      <button class="modal-close" onclick="closeSummary()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeSummary()">Fermer</button>
+      <button class="btn-primary" onclick="copyToClipboard()">Copier le résumé</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PREP=[
+  {t:"Ouvrir le classeur Excel validé (PicBD_Grille_tests_couts.xlsx)",n:"Vérifier que la feuille Grille_tests est visible avec les 12 lignes."},
+  {t:"Ouvrir l'application prototype dans l'environnement de test"},
+  {t:"Ouvrir l'outil API Ledger dans le prototype",n:"Vérifier que tous les champs sont visibles : tokens in, tokens out, images générées, coût total."},
+  {t:"Vérifier que l'API Ledger peut être remis à zéro entre chaque test",w:"Sans réinitialisation entre les tests, les coûts s'accumulent et les mesures deviennent inexploitables."},
+  {t:"Préparer un chronomètre pour mesurer la durée de chaque génération"},
+  {t:"Préparer les photos de test : 1 photo par personnage, nommées clairement",n:"Utiliser les mêmes photos pour tous les tests afin de ne pas biaiser les résultats."},
+];
+
+const TESTS=[
+  {id:1,type:"Mural",pers:1,tag:"type-mural",ligne:6},
+  {id:2,type:"Mural",pers:2,tag:"type-mural",ligne:7},
+  {id:3,type:"Mural",pers:3,tag:"type-mural",ligne:8},
+  {id:4,type:"BD courte",pers:1,tag:"type-court",ligne:9},
+  {id:5,type:"BD courte",pers:2,tag:"type-court",ligne:10},
+  {id:6,type:"BD courte",pers:3,tag:"type-court",ligne:11},
+  {id:7,type:"BD moyenne",pers:1,tag:"type-moyen",ligne:12},
+  {id:8,type:"BD moyenne",pers:2,tag:"type-moyen",ligne:13},
+  {id:9,type:"BD moyenne",pers:3,tag:"type-moyen",ligne:14},
+  {id:10,type:"BD longue",pers:1,tag:"type-long",ligne:15},
+  {id:11,type:"BD longue",pers:2,tag:"type-long",ligne:16},
+  {id:12,type:"BD longue",pers:3,tag:"type-long",ligne:17},
+];
+
+const FINAL=[
+  {t:"Vérifier que les 12 lignes de la feuille Grille_tests sont toutes remplies"},
+  {t:"Vérifier dans la feuille Synthese que les 4 lignes de moyennes ont des valeurs"},
+  {t:"Vérifier dans la feuille Bareme_credits que Crédits requis et Prix utilisateur sont calculés"},
+  {t:"Sauvegarder le fichier Excel (Ctrl+S ou Cmd+S)"},
+  {t:"Renommer le fichier : PicBD_Grille_tests_couts_AAAAMMJJ.xlsx",n:"Exemple : PicBD_Grille_tests_couts_20260621.xlsx"},
+  {t:"Envoyer le fichier pour analyse et fixation du barème de crédits"},
+];
+
+const TARIF_IMG=0.067,TARIF_TIN=1.5,TARIF_TOUT=9.0,TAUX=0.92;
+let state={prep:{},tests:{},final:{}};
+
+function load(){try{const s=localStorage.getItem('picbd_v2');if(s)state=JSON.parse(s);}catch(e){}}
+function save(){try{localStorage.setItem('picbd_v2',JSON.stringify(state));}catch(e){}}
+
+function calcEstim(d){
+  const img=+d.images||0,tin=+d.tin||0,tout=+d.tout||0,reel=+d.reel||0;
+  const ctxt=tin/1e6*TARIF_TIN+tout/1e6*TARIF_TOUT;
+  const cimg=img*TARIF_IMG;
+  const theo=ctxt+cimg;
+  const ecart=reel>0&&theo>0?((reel-theo)/theo*100):null;
+  return{ctxt,cimg,theo,reel,ecart};
+}
+
+function countDone(){return TESTS.filter(t=>state.tests[t.id]&&state.tests[t.id].done).length;}
+
+function updateProgress(){
+  const n=countDone(),p=Math.round(n/12*100);
+  document.getElementById('prog-fill').style.width=p+'%';
+  document.getElementById('prog-label').textContent=n+' / 12 tests complétés';
+  document.getElementById('prog-pct').textContent=p+'%';
+}
+
+function updateBadge(id,done,total){
+  const el=document.getElementById('badge-'+id);
+  if(!el)return;
+  el.textContent=done+'/'+total;
+  el.className='section-badge '+(done===total?'badge-done':done>0?'badge-prog':'badge-todo');
+}
+
+function buildPrep(){
+  let h='<div class="steps-wrap">';
+  PREP.forEach((s,i)=>{
+    const k='p'+i,ch=state.prep[k];
+    h+=`<div class="step">
+      <div class="step-cb"><input type="checkbox" ${ch?'checked':''} onchange="toggleCb('prep','${k}','prep-lbl-${i}')"></div>
+      <div class="step-content">
+        <div class="step-text ${ch?'done':''}" id="prep-lbl-${i}">${s.t}</div>
+        ${s.n?`<div class="step-note">ℹ️ ${s.n}</div>`:''}
+        ${s.w?`<div class="step-warn">⚠️ ${s.w}</div>`:''}
+      </div>
+    </div>`;
+  });
+  return h+'</div>';
+}
+
+function buildTests(){
+  let h='<div class="tests-wrap">';
+  TESTS.forEach(t=>{
+    const ts=state.tests[t.id]||{};
+    const done=!!ts.done;
+    h+=`<div class="test-card">
+      <div class="test-card-hdr" onclick="toggleTest(${t.id})">
+        <div class="test-num ${done?'done':''}" id="tn-${t.id}">${done?'✓':t.id}</div>
+        <span class="test-card-title">${t.type} — ${t.pers} personnage${t.pers>1?'s':''}</span>
+        <span class="test-card-type ${t.tag}">${t.type}</span>
+        <span class="test-card-status ${done?'done':''}" id="ts-${t.id}">${done?'✓ Complété':'À faire'}</span>
+        <span class="chevron" id="chev-${t.id}">›</span>
+      </div>
+      <div class="test-body" id="tb-${t.id}">
+        <div class="alert-ledger">⚠️ <span><strong>Avant de lancer :</strong> remettre l'API Ledger à zéro ou noter la valeur de départ. Sans cette étape, les coûts s'additionnent et faussent les mesures.</span></div>
+        <p class="section-label">Données à relever dans l'API Ledger</p>
+        <div class="field-grid">
+          <div class="field">
+            <label>Date du test</label>
+            <input type="date" value="${ts.date||''}" oninput="sf(${t.id},'date',this.value)">
+          </div>
+          <div class="field">
+            <label>Images générées</label>
+            <input type="number" min="0" placeholder="ex: 5" value="${ts.images||''}" oninput="sf(${t.id},'images',this.value);uc(${t.id})">
+          </div>
+          <div class="field">
+            <label>Requêtes texte</label>
+            <input type="number" min="0" placeholder="ex: 4" value="${ts.req||''}" oninput="sf(${t.id},'req',this.value)">
+          </div>
+          <div class="field">
+            <label>Tokens entrée</label>
+            <input type="number" min="0" placeholder="ex: 762" value="${ts.tin||''}" oninput="sf(${t.id},'tin',this.value);uc(${t.id})">
+          </div>
+          <div class="field">
+            <label>Tokens sortie</label>
+            <input type="number" min="0" placeholder="ex: 561" value="${ts.tout||''}" oninput="sf(${t.id},'tout',this.value);uc(${t.id})">
+          </div>
+          <div class="field field-full field-reel">
+            <label>💰 Coût RÉEL total Ledger ($) — valeur clé</label>
+            <input type="number" min="0" step="0.00001" placeholder="ex: 0.24316" value="${ts.reel||''}" oninput="sf(${t.id},'reel',this.value);uc(${t.id})">
+          </div>
+        </div>
+        <div class="calc-grid" id="calc-${t.id}">
+          <div class="calc-card"><div class="clabel">Coût texte est. ($)</div><div class="cval" id="cc-ctxt-${t.id}">—</div></div>
+          <div class="calc-card"><div class="clabel">Coût image théo. ($)</div><div class="cval" id="cc-cimg-${t.id}">—</div></div>
+          <div class="calc-card"><div class="clabel">Coût théo. total ($)</div><div class="cval" id="cc-theo-${t.id}">—</div></div>
+          <div class="calc-card"><div class="clabel">Écart réel / théo.</div><div class="cval" id="cc-ecart-${t.id}">—</div></div>
+        </div>
+        <hr class="divider">
+        <p class="section-label">Mesures complémentaires</p>
+        <div class="field-grid">
+          <div class="field">
+            <label>Durée de génération (secondes)</label>
+            <input type="number" min="0" placeholder="ex: 45" value="${ts.duree||''}" oninput="sf(${t.id},'duree',this.value)">
+          </div>
+          <div class="field">
+            <label>Qualité du résultat (1 = mauvais, 5 = excellent)</label>
+            <input type="number" min="1" max="5" placeholder="1 à 5" value="${ts.qual||''}" oninput="sf(${t.id},'qual',this.value)">
+          </div>
+          <div class="field field-full">
+            <label>Échecs / retries</label>
+            <input type="text" placeholder="ex: 0/0 ou 1 retry sur page 3" value="${ts.echecs||''}" oninput="sf(${t.id},'echecs',this.value)">
+          </div>
+          <div class="field field-full">
+            <label>Remarques (cohérence visuelle, personnages, problèmes observés)</label>
+            <textarea placeholder="Observations libres..." oninput="sf(${t.id},'rem',this.value)">${ts.rem||''}</textarea>
+          </div>
+        </div>
+        <div class="excel-ref">
+          📊 <span>Reporter dans Excel → feuille <strong>Grille_tests</strong>, ligne <strong>${t.ligne}</strong> &nbsp;·&nbsp; Type : ${t.type} &nbsp;·&nbsp; Personnages : ${t.pers}</span>
+        </div>
+        <button class="btn-done" id="btn-${t.id}" onclick="markDone(${t.id})" ${done?'disabled':''}>
+          ${done?'✓ Test complété et reporté dans Excel':'✓ Marquer comme complété et reporté dans Excel'}
+        </button>
+      </div>
+    </div>`;
+  });
+  return h+'</div>';
+}
+
+function buildFinal(){
+  let h='<div class="steps-wrap">';
+  FINAL.forEach((s,i)=>{
+    const k='f'+i,ch=state.final[k];
+    h+=`<div class="step">
+      <div class="step-cb"><input type="checkbox" ${ch?'checked':''} onchange="toggleCb('final','${k}','final-lbl-${i}')"></div>
+      <div class="step-content">
+        <div class="step-text ${ch?'done':''}" id="final-lbl-${i}">${s.t}</div>
+        ${s.n?`<div class="step-note">ℹ️ ${s.n}</div>`:''}
+      </div>
+    </div>`;
+  });
+  return h+'</div>';
+}
+
+function toggleCb(cat,key,lblId){
+  const cb=event.target;
+  state[cat][key]=cb.checked;
+  document.getElementById(lblId).className='step-text'+(cb.checked?' done':'');
+  save();
+  const pk=Object.values(state.prep).filter(Boolean).length;
+  const fk=Object.values(state.final).filter(Boolean).length;
+  updateBadge('prep',pk,PREP.length);
+  updateBadge('final',fk,FINAL.length);
+}
+
+function toggleSection(id){
+  const b=document.getElementById('body-'+id);
+  const c=document.getElementById('chev-'+id);
+  const open=b.classList.toggle('open');
+  c.style.transform=open?'rotate(90deg)':'';
+}
+
+function toggleTest(id){
+  const b=document.getElementById('tb-'+id);
+  const c=document.getElementById('chev-'+id);
+  const open=b.classList.toggle('open');
+  c.style.transform=open?'rotate(90deg)':'';
+  if(open)uc(id);
+}
+
+function sf(id,field,val){
+  if(!state.tests[id])state.tests[id]={};
+  state.tests[id][field]=val;
+  save();
+}
+
+function uc(id){
+  const d=state.tests[id]||{};
+  const c=calcEstim(d);
+  const set=(eid,val,cls)=>{const el=document.getElementById(eid);if(el){el.textContent=val;if(cls)el.className='cval '+cls;}};
+  set('cc-ctxt-'+id, (+d.tin||+d.tout)?'$'+c.ctxt.toFixed(5):'—','');
+  set('cc-cimg-'+id, +d.images?'$'+c.cimg.toFixed(5):'—','');
+  set('cc-theo-'+id, +d.images?'$'+c.theo.toFixed(5):'—','');
+  if(c.ecart!==null){
+    const v=c.ecart,s=(v>0?'+':'')+v.toFixed(1)+'%';
+    set('cc-ecart-'+id,s,Math.abs(v)>30?'c-yellow':'c-green');
+  } else set('cc-ecart-'+id,'—','');
+}
+
+function markDone(id){
+  const d=state.tests[id]||{};
+  if(!d.reel){alert('Veuillez saisir le coût RÉEL Ledger avant de valider.');return;}
+  if(!d.images){alert('Veuillez saisir le nombre d\'images générées.');return;}
+  state.tests[id]={...d,done:true};save();
+  const tn=document.getElementById('tn-'+id);
+  tn.textContent='✓';tn.className='test-num done';
+  document.getElementById('ts-'+id).textContent='✓ Complété';
+  document.getElementById('ts-'+id).className='test-card-status done';
+  const btn=document.getElementById('btn-'+id);
+  btn.textContent='✓ Test complété et reporté dans Excel';btn.disabled=true;
+  updateProgress();updateBadge('tests',countDone(),12);
+}
+
+function openSummary(){
+  const done=TESTS.filter(t=>state.tests[t.id]&&state.tests[t.id].done);
+  if(!done.length){alert('Aucun test complété pour l\'instant.');return;}
+  let html='';
+  let totR=0,totI=0;
+  done.forEach(t=>{
+    const d=state.tests[t.id];
+    const r=parseFloat(d.reel)||0;
+    const img=parseInt(d.images)||0;
+    totR+=r;totI+=img;
+    html+=`<div class="summary-row">
+      <span class="sr-type">Test ${t.id} — ${t.type} (${t.pers} pers.)</span>
+      <span class="sr-val">${img} img · ${d.duree||'—'} s · qualité ${d.qual||'—'}/5</span>
+      <span class="sr-reel">$${r.toFixed(4)}</span>
+    </div>`;
+  });
+  const avgImg=totI>0?(totR/totI):0;
+  html+=`<div class="summary-total">
+    <div class="st-item"><div class="stl">Tests complétés</div><div class="stv">${done.length} / 12</div></div>
+    <div class="st-item"><div class="stl">Coût réel cumulé</div><div class="stv">$${totR.toFixed(4)}</div></div>
+    <div class="st-item"><div class="stl">Coût réel / image</div><div class="stv">$${avgImg.toFixed(4)}</div></div>
+  </div>`;
+  document.getElementById('modal-body').innerHTML=html;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeSummary(){document.getElementById('modal').classList.remove('open');}
+
+function copyToClipboard(){
+  const done=TESTS.filter(t=>state.tests[t.id]&&state.tests[t.id].done);
+  let txt='Résumé tests PicBD — '+new Date().toLocaleDateString('fr-FR')+'\n\n';
+  done.forEach(t=>{
+    const d=state.tests[t.id];
+    txt+=`Test ${t.id} — ${t.type} (${t.pers} pers.) : $${d.reel} réel · ${d.images} images · ${d.duree||'—'}s · qualité ${d.qual||'—'}/5\n`;
+  });
+  txt+='\nTests restants : '+TESTS.filter(t=>!state.tests[t.id]||!state.tests[t.id].done).map(t=>t.id).join(', ');
+  navigator.clipboard.writeText(txt).then(()=>alert('Résumé copié dans le presse-papiers !')).catch(()=>alert('Copiez manuellement le texte affiché.'));
+}
+
+function resetAll(){
+  if(!confirm('Réinitialiser toute la checklist ? Toutes vos saisies seront perdues.'))return;
+  localStorage.removeItem('picbd_v2');location.reload();
+}
+
+function buildSection(id,icon,title,subtitle,content,badgeInit){
+  const div=document.createElement('div');
+  div.className='section';
+  div.innerHTML=`<div class="section-header" onclick="toggleSection('${id}')">
+    <div class="section-icon ${icon}"><span style="font-size:18px">${{icon_prep:'⚙️',icon_test:'▶️',icon_final:'✅'}[icon]}</span></div>
+    <div class="section-info"><h2>${title}</h2><p>${subtitle}</p></div>
+    <span class="section-badge badge-todo" id="badge-${id}">${badgeInit}</span>
+    <span class="section-chevron" id="chev-${id}">›</span>
+  </div>
+  <div class="section-body" id="body-${id}">${content}</div>`;
+  return div;
+}
+
+load();
+const wrap=document.getElementById('sections');
+wrap.appendChild(buildSection('prep','icon_prep','Préparation','6 étapes à valider avant de lancer le premier test',buildPrep(),'0/'+PREP.length));
+wrap.appendChild(buildSection('tests','icon_test','12 tests de génération','Mural · BD courte · BD moyenne · BD longue × 1, 2, 3 personnages',buildTests(),'0/12'));
+wrap.appendChild(buildSection('final','icon_final','Vérification finale & envoi','6 étapes avant de renvoyer le fichier Excel',buildFinal(),'0/'+FINAL.length));
+
+toggleSection('prep');
+updateProgress();
+updateBadge('prep',Object.values(state.prep).filter(Boolean).length,PREP.length);
+updateBadge('tests',countDone(),12);
+updateBadge('final',Object.values(state.final).filter(Boolean).length,FINAL.length);
+TESTS.forEach(t=>{if(state.tests[t.id])uc(t.id);});
+</script>
+</body>
+</html>
